@@ -23,33 +23,38 @@ class Zustand:
             b = "".join([str(0) for i in range(self.tiefe-len(b))]) + b
             self.statistik[ b ] = 0;
 
-    def rate (self):
+    def rate (self, still=False):
         "Diese Funktion rät die nächste Eingabe und hat natürlich keine Argumente außer dem internen Zustand zur Verfügung."
         # Falls nicht genug Daten: Zufall
         if len(self.folge) < self.tiefe:
-            return randint(0,1)
+            tipp = randint(0,1)
+            if not still: print ("Tipp: " + str(tipp))
+            return tipp
         lastbits = self.folge[ -(self.tiefe-1): ]
-        print "lastbits:"
-        print lastbits
+        # print "lastbits:"
+        # print lastbits
         # Wähle das häufigere nächste bit
         if self.statistik[ lastbits + str(0) ] > self.statistik [ lastbits + str(1) ]:
+            if not still: print "Tipp: 0"
             return 0
         else:
+            if not still: print "Tipp: 1"
             return 1
     
-    def eingabe (self, bit):
+    def eingabe (self, bit, still=False):
         "Rate die nächste Eingabe"
-        tipp = self.rate();
+        tipp = self.rate(still);
         if tipp == int(bit):
             self.treffer += 1;
         self.folge += str(bit)
         if len(self.folge) >= self.tiefe:
             self.statistik [ self.folge[-self.tiefe:] ] += 1;
 
+        # print "Folge:"
+        # print self.folge
+        # print "Statistik:"
+        # print self.statistik
+
+    def quote(self):
         print " ".join(["Aktuelle Quote:", str(self.treffer), "Treffer aus",
                         str(len(self.folge)), "Versuchen:", str(int(100*self.treffer / len(self.folge))),"%"])
-
-        print "Folge:"
-        print self.folge
-        print "Statistik:"
-        print self.statistik
