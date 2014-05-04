@@ -1,28 +1,55 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from random import randint
+
 class Zustand:
     "Repräsentiert den Zustand des Programms"
-    folge = []  # Bisherige Eingaben
+    folge = ""  # Bisherige Eingaben
     statistik = {}  # Hash mit bisheriger Statistik
+    treffer = 0 # Anzahl richtige Tipps
     tiefe = 3 # Suchtiefe für die Statistik
     
     def __init__ (self, suchtiefe):
-        folge = []
-        tiefe = suchtiefe;
+        self.folge = ""
+        self.tiefe = suchtiefe
+        self.treffer=0
 
-        # Generate all strings of length tiefe
+        # Initialisiere dictionary mit Nullen
         for i in range (2**suchtiefe):
+            # Ganzzahl in Bitstring:
             b = bin(i)[2:]
-            statistik[ b ] = 0;
-        
+            # vorne Mit Nullen auffüllen
+            b = "".join([str(0) for i in range(self.tiefe-len(b))]) + b
+            self.statistik[ b ] = 0;
+
+    def rate (self):
+        "Diese Funktion rät die nächste Eingabe und hat natürlich keine Argumente außer dem internen Zustand zur Verfügung."
+        # Falls nicht genug Daten: Zufall
+        if len(self.folge) < self.tiefe:
+            return randint(0,1)
+        lastbits = self.folge[ -(self.tiefe-1): ]
+        print "lastbits:"
+        print lastbits
+        # Wähle das häufigere nächste bit
+        if self.statistik[ lastbits + str(0) ] > self.statistik [ lastbits + str(1) ]:
+            return 0
+        else:
+            return 1
     
-    def rate (self, eingabe):
+    def eingabe (self, bit):
         "Rate die nächste Eingabe"
-        tipp = 
-        folge += [eingabe]
-        if len(folge) >= self.tiefe: 
-            statistik [ folge[-self.tiefe] ] += 1;
-        
-        return 0;
-    
+        tipp = self.rate();
+        if tipp == int(bit):
+            self.treffer += 1;
+        self.folge += str(bit)
+        if len(self.folge) >= self.tiefe:
+            self.statistik [ self.folge[-self.tiefe:] ] += 1;
+
+        print " ".join(["Aktuelle Quote:", str(self.treffer), "Treffer aus",
+                        str(len(self.folge)), "Versuchen:", str(int(100*self.treffer / len(self.folge))),"%"])
+
+        print "Folge:"
+        print self.folge
+        print "Statistik:"
+        print self.statistik
